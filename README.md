@@ -2,12 +2,37 @@
 
 A minimal web app to download videos you own or are licensed to use. It does not bypass DRM, and it blocks popular platforms whose ToS prohibit downloading.
 
-## Quick Start
+## ⚠️ Important: Deployment
 
-1. Copy `.env.example` to `.env` and adjust values.
-2. Use Node 18+.
-3. Run: `npm run start` (or `npm run dev`).
-4. Open http://localhost:3000
+**This is a Node.js application that requires a backend server. It cannot be deployed to GitHub Pages!**
+
+GitHub Pages only supports static websites (HTML/CSS/JS only). This app needs:
+- Node.js server to handle API requests
+- Python + yt-dlp for video downloading
+
+### ✅ Deploy to Render.com (Free)
+
+1. **Push your code to GitHub** (if not already done)
+2. Go to [Render.com](https://render.com) and sign up
+3. Click "New +" → "Web Service"
+4. Connect your GitHub repository `fakhar077/downloader`
+5. Configure:
+   - Name: `video-downloader`
+   - Environment: `Node`
+   - Build Command: `npm install`
+   - Start Command: `node src/server.js`
+6. Click "Create Web Service"
+7. Wait 2-3 minutes for deployment
+8. Your app will be live at `https://video-downloader.onrender.com`
+
+### Local Development
+
+1. Install Node.js 18+
+2. Install Python and yt-dlp: `pip install yt-dlp`
+3. Copy `.env.example` to `.env` and adjust values
+4. Run: `npm install`
+5. Run: `npm run start` (or `npm run dev`)
+6. Open http://localhost:3000
 
 ## Environment
 
