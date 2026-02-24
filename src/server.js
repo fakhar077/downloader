@@ -216,6 +216,20 @@ async function downloadWithYtDlp(url, res, platform, formatId) {
     ytProc.on('close', (code) => {
       if (code !== 0) {
         console.error(`yt-dlp exited with code ${code}: ${stderr}`);
+        // Check for specific error types and provide helpful messages
+        const errorMsg = stderr.toLowerCase();
+        if (errorMsg.includes('unable to extract') || errorMsg.includes('not found') || errorMsg.includes('404')) {
+          return reject(new Error('VIDEO_NOT_FOUND: The video may have been deleted or is not available. It could also be a private video.'));
+        }
+        if (errorMsg.includes('geo') || errorMsg.includes('blocked') || errorMsg.includes('not available in your country')) {
+          return reject(new Error('GEO_BLOCKED: This video is not available in your region due to geographical restrictions.'));
+        }
+        if (errorMsg.includes('age') || errorMsg.includes('age-restricted')) {
+          return reject(new Error('AGE_RESTRICTED: This video is age-restricted and cannot be downloaded.'));
+        }
+        if (errorMsg.includes('login') || errorMsg.includes('authentication') || errorMsg.includes('credential')) {
+          return reject(new Error('AUTH_REQUIRED: This video requires authentication or login to access.'));
+        }
         return downloadWithPythonModule(url, res, platform).then(resolve).catch(reject);
       }
 
@@ -256,7 +270,12 @@ async function downloadWithYtDlp(url, res, platform, formatId) {
 
     ytProc.on('error', (err) => {
       console.error('yt-dlp process error:', err);
-      reject(err);
+      const errorMsg = err.message.toLowerCase();
+      if (errorMsg.includes('enoent') || errorMsg.includes('not found') || errorMsg.includes('spawn')) {
+        reject(new Error('YT_DLP_NOT_FOUND: yt-dlp is not installed or not in PATH. Please install yt-dlp: pip install yt-dlp'));
+      } else {
+        reject(err);
+      }
     });
   });
 }
@@ -669,6 +688,35 @@ async function handleDownload(req, res) {
         return await downloadWithYtDlp(targetRaw, res, platform, formatId);
       } catch (err) {
         console.error('yt-dlp failed:', err.message);
+        
+        // Parse error code and return appropriate message
+        const errorMsg = err.message;
+        let userMessage = 'Download failed. Please try again.';
+        let hint = '';
+        
+        if (errorMsg.includes('VIDEO_NOT_FOUND')) {
+          userMessage = 'Video not found. The video may have been deleted or is private.';
+          hint = 'Try a different video or check if the URL is correct.';
+        } else if (errorMsg.includes('GEO_BLOCKED')) {
+          userMessage = 'This video is not available in your region.';
+          hint = 'Try using a VPN or proxy to access the video.';
+        } else if (errorMsg.includes('AGE_RESTRICTED')) {
+          userMessage = 'This video is age-restricted and cannot be downloaded.';
+          hint = 'Try logging in to the platform first.';
+        } else if (errorMsg.includes('AUTH_REQUIRED')) {
+          userMessage = 'This video requires authentication to access.';
+          hint = 'The video may be private or only accessible to certain users.';
+        } else if (errorMsg.includes('YT_DLP_NOT_FOUND')) {
+          userMessage = 'Download tool not configured properly.';
+          hint = 'Please install yt-dlp: pip install yt-dlp';
+        }
+        
+        return sendJSON(res, 400, { 
+          error: userMessage,
+          hint: hint,
+          platform: platform,
+          detail: errorMsg
+        });
       }
     }
     
