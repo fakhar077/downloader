@@ -3,26 +3,51 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Social Media Video Downloader - YouTube, TikTok, Instagram & More</title>
-  <meta name="description" content="Download videos from YouTube, TikTok, Instagram, Facebook, Twitter and more. Free online video downloader for all platforms." />
+  <title>HD Video Downloader with Audio - Free YouTube Video Downloader | __SITE_NAME__</title>
+  <meta name="description" content="Free HD video downloader with audio. Download YouTube, TikTok, Instagram videos in 720p, 1080p with audio. No watermark, fast and free online video downloader." />
+  <meta name="keywords" content="video downloader, HD video downloader, YouTube downloader, download YouTube videos, TikTok downloader, Instagram video downloader, Facebook video downloader, video download with audio, 720p video download, 1080p video download, free video downloader, online video downloader" />
   <link rel="canonical" href="/" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" media="(prefers-color-scheme: light)">
   <link rel="icon" href="/favicon-dark.svg" type="image/svg+xml" media="(prefers-color-scheme: dark)">
-  <meta property="og:title" content="Social Media Video Downloader" />
-  <meta property="og:description" content="Download videos from YouTube, TikTok, Instagram, Facebook, Twitter and more." />
+  <meta property="og:title" content="HD Video Downloader with Audio - Free YouTube Video Downloader" />
+  <meta property="og:description" content="Download videos from YouTube, TikTok, Instagram in HD quality with audio. Fast, free and easy to use." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="/" />
   <meta property="og:image" content="/og.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HD Video Downloader with Audio" />
+  <meta name="twitter:description" content="Free HD video downloader with audio. Download YouTube, TikTok videos in 720p, 1080p." />
   <meta name="theme-color" content="#1152d4" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Social Media Video Downloader","url":"/","applicationCategory":"Utilities","operatingSystem":"All"}</script>
+  <script type="application/ld+json">{
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "HD Video Downloader with Audio",
+    "url": "/",
+    "description": "Free HD video downloader with audio. Download YouTube, TikTok, Instagram videos in 720p, 1080p with audio.",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "All",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "featureList": [
+      "HD video download with audio",
+      "YouTube video downloader",
+      "TikTok video downloader",
+      "Instagram video downloader",
+      "720p and 1080p support",
+      "No watermark downloads"
+    ]
+  }</script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400..700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/styles.css" />
   <!-- Shared Components (Header, Footer, Theme Toggle) -->
   <script src="/components.js"></script>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7001395011926411" crossorigin="anonymous"></script>
   <script>(function(){var GA='__GA_ID__';if(GA&&GA!=='__GA_ID__'){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+GA;document.head.appendChild(s);window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config',GA);}})();</script>
-  <script>(function(){var ADS='__ADSENSE_CLIENT__';if(ADS&&ADS!=='__ADSENSE_CLIENT__'){var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+ADS;document.head.appendChild(s);}})();</script>
 </head>
 <body>
   <!-- Header is loaded from components.js -->
@@ -199,7 +224,6 @@ async function getVideoInfo(url){
         const contentType = r.headers.get('content-type');
         
         if (!contentType || !contentType.includes('application/json')) {
-          // Server returned non-JSON response
           const text = await r.text();
           console.error('Server returned non-JSON response:', text);
           return { 
@@ -212,7 +236,6 @@ async function getVideoInfo(url){
         
         const data = await r.json();
         
-        // If the response indicates an error, include the hint if available
         if (!data.ok && data.hint) {
           data.error = data.error + '. ' + data.hint;
         }
@@ -256,7 +279,6 @@ async function getVideoInfo(url){
       previewTitle.textContent = info.title || 'Untitled';
       previewUploader.textContent = info.uploader || '';
       
-      // Populate quality options
       qualitySelect.innerHTML = '';
       if (info.availableQualities && info.availableQualities.length > 0) {
         info.availableQualities.forEach((q, index) => {
@@ -279,7 +301,6 @@ async function getVideoInfo(url){
       msg.classList.add('hidden');
     }
 
-    // Preview download button click
     document.getElementById('preview-download-btn').addEventListener('click', function() {
       if (!currentUrl || !videoInfo) return;
       
@@ -291,21 +312,17 @@ async function getVideoInfo(url){
         downloadUrl += '&format_id=' + encodeURIComponent(formatId);
       }
       
-      // Hide video preview and show download progress
       downloadProgress.classList.remove('hidden');
       videoPreview.classList.add('hidden');
       
-      // Show success message
       const progressText = downloadProgress.querySelector('.progress-text');
       const progressSubtext = downloadProgress.querySelector('.progress-subtext');
       progressText.textContent = 'Download Started!';
       progressText.style.color = '#22c55e';
       progressSubtext.textContent = 'Your video is being downloaded. Check your downloads folder.';
       
-      // Start the download
       window.location.href = downloadUrl;
       
-      // Reset UI after a few seconds and show completion message
       setTimeout(function() {
         downloadProgress.classList.add('hidden');
         msg.classList.remove('hidden');

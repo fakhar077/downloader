@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const headerHTML = `
     <header class="header">
       <div class="container header-row">
-        <a href="/" class="brand"><img src="/assets/logo.svg" alt="Logo" class="logo"/> <span style="color:var(--primary);">Downloader</span></a>
+        <a href="/" class="brand"><img src="/assets/logo.svg" alt="Logo" class="logo"/> <span style="color:var(--primary);">Downloader-World</span></a>
         <button id="mobile-menu-toggle" class="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
           <span class="material-symbols-outlined icon" aria-hidden="true">menu</span>
         </button>

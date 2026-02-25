@@ -8,6 +8,46 @@ const PORT = Number(process.env.PORT || 3000);
 const GA_ID = process.env.GA_MEASUREMENT_ID || '';
 const ADS_CLIENT = process.env.ADSENSE_CLIENT_ID || '';
 
+// Domain-based site name configuration
+const DEFAULT_SITE_NAME = process.env.DEFAULT_SITE_NAME || 'Downloader-World';
+const DOMAIN_MAPPINGS = process.env.DOMAIN_MAPPINGS || '';
+
+// Parse domain mappings into a Map
+function getDomainMappings() {
+  const mappings = new Map();
+  if (DOMAIN_MAPPINGS) {
+    DOMAIN_MAPPINGS.split(',').forEach(pair => {
+      const [domain, name] = pair.split('=').map(s => s.trim());
+      if (domain && name) {
+        mappings.set(domain.toLowerCase(), name);
+      }
+    });
+  }
+  return mappings;
+}
+
+// Get site name based on hostname
+function getSiteName(hostname) {
+  if (!hostname) return DEFAULT_SITE_NAME;
+  
+  const mappings = getDomainMappings();
+  const hostLower = hostname.toLowerCase();
+  
+  // Check for exact match first
+  if (mappings.has(hostLower)) {
+    return mappings.get(hostLower);
+  }
+  
+  // Check for partial match (e.g., subdomain)
+  for (const [domain, name] of mappings) {
+    if (hostLower.includes(domain)) {
+      return name;
+    }
+  }
+  
+  return DEFAULT_SITE_NAME;
+}
+
 // Platform detection
 function detectPlatform(url) {
   const urlStr = url.toLowerCase();
@@ -40,10 +80,11 @@ function sendJSON(res, code, payload){
   res.end(body);
 }
 
-function serveWithTokens(filePath, res){
+function serveWithTokens(filePath, res, hostname){
   fs.readFile(filePath, 'utf8', (err, data) => {
     if (err) { res.writeHead(404); res.end('Not found'); return; }
-    let out = data.replaceAll('__GA_ID__', GA_ID).replaceAll('__ADSENSE_CLIENT__', ADS_CLIENT);
+    const siteName = getSiteName(hostname);
+    let out = data.replaceAll('__GA_ID__', GA_ID).replaceAll('__ADSENSE_CLIENT__', ADS_CLIENT).replaceAll('__SITE_NAME__', siteName);
     res.writeHead(200, { 'Content-Type': contentTypeFor(filePath) });
     res.end(out);
   });
@@ -306,8 +347,8 @@ const server = http.createServer(async (req, res) => {
     let filePath = path.join(__dirname, '..', 'public', pathname === '/' ? 'index.html' : pathname);
     if (!filePath.startsWith(path.join(__dirname, '..', 'public'))) { res.writeHead(403); return res.end('Forbidden'); }
 
-    if (filePath.endsWith('.html')) {
-      return serveWithTokens(filePath, res);
+    if (filePath.endsWith('.html') || filePath.endsWith('.js')) {
+      return serveWithTokens(filePath, res, req.headers.host);
     }
 
     fs.stat(filePath, (err, st) => {
